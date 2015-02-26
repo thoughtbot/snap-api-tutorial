@@ -19,3 +19,4 @@ cabal.config
 *.aux
 *.hp
 *.log
+.DS_Store
