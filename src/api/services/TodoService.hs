@@ -6,13 +6,21 @@ module Api.Services.TodoService where
 
 import Api.Types
 import Control.Lens
+import Control.Monad.State.Class
+import Data.Aeson
 import Snap.Core
 import Snap.Snaplet
+import Snap.Snaplet.PostgresqlSimple
+import qualified Data.ByteString.Char8 as B
 
-data TodoService = TodoService
+data TodoService = TodoService { _pg :: Snaplet Postgres }
 
 makeLenses ''TodoService
 
 todoServiceInit :: SnapletInit b TodoService
 todoServiceInit = makeSnaplet "todos" "Todo Service" Nothing $ do
-  return TodoService
+  pg <- nestSnaplet "pg" pg pgsInit
+  return $ TodoService pg
+
+instance HasPostgres (Handler b TodoService) where
+  getPostgresState = with pg get
