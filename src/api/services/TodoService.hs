@@ -17,6 +17,15 @@ data TodoService = TodoService { _pg :: Snaplet Postgres }
 
 makeLenses ''TodoService
 
+todoRoutes :: [(B.ByteString, Handler b TodoService ())]
+todoRoutes = [("/", method GET getTodos)]
+
+getTodos :: Handler b TodoService ()
+getTodos = do
+  todos <- query_ "SELECT * FROM todos"
+  modifyResponse $ setHeader "Content-Type" "application/json"
+  writeLBS . encode $ (todos :: [Todo])
+
 todoServiceInit :: SnapletInit b TodoService
 todoServiceInit = makeSnaplet "todos" "Todo Service" Nothing $ do
   pg <- nestSnaplet "pg" pg pgsInit
