@@ -9,6 +9,7 @@ module Site
   ) where
 
 ------------------------------------------------------------------------------
+import           Api.Core
 import           Control.Applicative
 import           Data.ByteString (ByteString)
 import qualified Data.Text as T
@@ -35,6 +36,6 @@ routes = []
 -- | The application initializer.
 app :: SnapletInit App App
 app = makeSnaplet "app" "An snaplet example application." Nothing $ do
+    api <- nestSnaplet "api" api apiInit
     addRoutes routes
-    return $ App
-
+    return $ App api
