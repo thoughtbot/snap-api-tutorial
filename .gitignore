@@ -18,4 +18,4 @@ cabal.config
 *.prof
 *.aux
 *.hp
-
+*.log
