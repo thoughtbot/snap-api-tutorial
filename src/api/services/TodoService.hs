@@ -18,7 +18,13 @@ data TodoService = TodoService { _pg :: Snaplet Postgres }
 makeLenses ''TodoService
 
 todoRoutes :: [(B.ByteString, Handler b TodoService ())]
-todoRoutes = [("/", method GET getTodos)]
+todoRoutes = [("/", method GET getTodos), ("/", method POST createTodo)]
+
+createTodo :: Handler b TodoService ()
+createTodo = do
+  todoTextParam <- getPostParam "text"
+  execute "INSERT INTO todos (text) VALUES (?)" (Only todoTextParam)
+  modifyResponse $ setResponseCode 201
 
 getTodos :: Handler b TodoService ()
 getTodos = do
@@ -29,6 +35,7 @@ getTodos = do
 todoServiceInit :: SnapletInit b TodoService
 todoServiceInit = makeSnaplet "todos" "Todo Service" Nothing $ do
   pg <- nestSnaplet "pg" pg pgsInit
+  addRoutes todoRoutes
   return $ TodoService pg
 
 instance HasPostgres (Handler b TodoService) where
